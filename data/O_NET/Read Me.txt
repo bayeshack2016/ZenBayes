@@ -1,0 +1,13 @@
+O*NET 20.3 Database
+April 2016 Release
+------------------
+
+For information on current and future releases of the O*NET database,
+please visit:
+
+http://www.onetcenter.org/database.html
+
+For documentation on the contents and structure of these files,
+please visit:
+
+http://www.onetcenter.org/dictionary/20.3/text/
