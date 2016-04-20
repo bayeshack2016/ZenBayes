@@ -1,4 +1,7 @@
+library(openxlsx)
 library(reshape2)
+library(foreach)
+library(gdata)
 
 # Ingest ONET data
 onet <- lapply(list.files("data/O_NET/", full.names = TRUE), 
@@ -6,43 +9,50 @@ onet <- lapply(list.files("data/O_NET/", full.names = TRUE),
 names(onet) <- gsub(".txt", "", list.files("data/O_NET/"))
 
 
+# Ingest State BLS OES data
+bls.state <- list()
+bls.state$`1997` <- read.xls("data/bls/state_1997_dl.xls", 1, skip = 40, blank.lines.skip = FALSE)
+bls.state$`1998` <- read.xls("data/bls/state_1998_dl.xls", 1, skip = 41, blank.lines.skip = FALSE)
+bls.state$`1999` <- read.xls("data/bls/state_1999_dl.xls", 1, skip = 43, blank.lines.skip = FALSE)
+bls.state$`2000` <- read.xls("data/bls/state_2000_dl.xls", 1, skip = 42, blank.lines.skip = FALSE)
+bls.state$`2001` <- read.xls("data/bls/state_2001_dl.xls", 1)
+bls.state$`2002` <- read.xls("data/bls/state_2002_dl.xls", 1)
+bls.state$`2003` <- read.xls("data/bls/state_may2003_dl.xls", 1)
+bls.state$`2004` <- read.xls("data/bls/state_may2004_dl.xls", 1)
+bls.state$`2005` <- read.xls("data/bls/state_may2005_dl.xls", 1)
+bls.state$`2006` <- read.xls("data/bls/state_may2006_dl.xls", 1)
+bls.state$`2007` <- read.xls("data/bls/state_May2007_dl.xls", 1)
+bls.state$`2008`<- read.xls("data/bls/state__M2008_dl.xls", 1)
+bls.state$`2009`<- read.xls("data/bls/state_dl.xls", 1)
+bls.state$`2010`<- read.xls("data/bls/state_M2010_dl.xls", 1)
+bls.state$`2011`<- read.xls("data/bls/state_M2011_dl.xls", 1)
+bls.state$`2012`<- read.xls("data/bls/state_M2012_dl.xls", 1)
+bls.state$`2013`<- read.xls("data/bls/state_M2013_dl.xls", 1)
+bls.state$`2014`<- read.xlsx("data/bls/state_M2014_dl.xlsx", 1)
+bls.state$`2015`<- read.xlsx("data/bls/state_M2015_dl.xlsx", 1)
 
-bls.oc <- read.csv("http://download.bls.gov/pub/time.series/oe/oe.data.0.Current", 
-                 fill = T, 
-                 header = T, 
-                 sep = '\t')
-bls.oc$datatype <- as.numeric(substr(bls.oc$series_id, 24,25))
-bls.oc$occupation_code <- factor(substr(bls.oc$series_id, 18,23))
-bls.oc$value <- gsub("[:blank:]*-", NA, bls.oc$value)
-bls.oc$value <- gsub(",", "", bls.oc$value)
-bls.oc$value <- as.numeric(as.character(bls.oc$value))
-bls.oc.employment <- dcast(subset(bls.oc, datatype == 1), 
-                     occupation_code + year + period ~ datatype, 
-                     value.var = "value", 
-                     fun.aggregate = sum, na.rm = TRUE)
+
+# Ingest Industry BLS OES data
+to.get <- list.files("data/bls/", pattern = "nat3d.*xls$", full.names = TRUE)
+bls.industry <- lapply(to.get, read.xls, sheet = 1)
+to.get2 <- list.files("data/bls/", pattern = "nat3d.*xlsx$", full.names = TRUE)
+bls.industry <- c(bls.industry, lapply(to.get2, read.xlsx, sheet = 1))
+names(bls.industry) <- c(str_extract(to.get, "[0-9]{4}"), str_extract(to.get2, "[0-9]{4}"))
 
 
-bls.ln <- read.csv("http://download.bls.gov/pub/time.series/ln/ln.data.1.AllData",
-                   fill = T, 
-                   header = T, 
-                   sep = '\t')
-bls.ln.series <- read.csv("http://download.bls.gov/pub/time.series/ln/ln.series",
-                   fill = T, 
-                   header = T, 
-                   sep = '\t', skip = 2)
-names(bls.ln.series) <- strsplit(
-  paste0(
-    readLines("http://download.bls.gov/pub/time.series/ln/ln.series", n=2),
-  collapse = '\t'),
-  '\t')[[1]]
-bls.ln.series$series_id <- substr(bls.ln.series$series_id, 1, 11)
-bls.ln$series_id <- substr(bls.ln$series_id, 1, 11)
-bls.ln$series_title <- bls.ln.series[match(bls.ln$series_id, bls.ln.series[,1]), "series_title"]
-bls.ln$periodicity <- substr(bls.ln$period, 1, 1)
-bls.ln$period <- substr(bls.ln$period, 2, 3)
-bls.ln$value <- as.character(bls.ln$value)
-bls.ln$value <- gsub("[:space:]*-", "", bls.ln$value)
-bls.ln$value <- gsub(",", "", bls.ln$value)
-bls.ln$value <- as.numeric(bls.ln$value)
-
-subset(bls.ln, series_title == "(unadj) Employed - Chief executives" )
+# Process state
+state.cols <- c("state", 
+                "occ_code", 
+                "a_mean",
+                "a_median")
+bls.state <- 
+  foreach(bls.year = bls.state) %do% {
+    names(bls.year) <- tolower(names(bls.year))
+    names(bls.year)[names(bls.year) == "group"] <- "occ_group"
+    bls.year <- subset(bls.year, occ_group %in% c("", "detailed"), select = state.cols)
+  }
+names(bls.state) <- 1997:2015
+bls.state <- do.call(rbind, bls.state)
+bls.state$year <- substr(rownames(bls.state), 1,4)
+rownames(bls.state) <- NULL
+saveRDS(bls.state, "data/processed/bls_state.RDS")
