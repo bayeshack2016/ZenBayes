@@ -2,6 +2,7 @@ library(openxlsx)
 library(reshape2)
 library(foreach)
 library(gdata)
+library(stringr)
 
 # Ingest ONET data
 onet <- lapply(list.files("data/O_NET/", full.names = TRUE), 
@@ -45,6 +46,58 @@ bls.industry$`1999` <- read.xls("data/bls/nat3d_sic_1999_dl.xls", 1, skip = 35, 
 bls.industry$`2000` <- read.xls("data/bls/nat3d_sic_2000_dl.xls", 1, skip = 34, blank.lines.skip = FALSE)
 
 
+bls.metro <- list()
+bls.metro$`1997` <- rbind(read.xls("data/bls/oes97ma1.xls", skip = 31, blank.lines.skip = FALSE),
+                          read.xls("data/bls/oes97ma2.xls", skip = 32, blank.lines.skip = FALSE))
+bls.metro$`1998` <- rbind(read.xls("data/bls/MSA_1998_dl_1.xls", skip = 42, blank.lines.skip = FALSE),
+                          read.xls("data/bls/MSA_1998_dl_2.xls", skip = 42, blank.lines.skip = FALSE),
+                          read.xls("data/bls/MSA_1998_dl_3.xls", skip = 42, blank.lines.skip = FALSE)[,1:25])
+bls.metro$`1999` <- rbind(read.xls("data/bls/MSA_1999_dl_1.xls", skip = 43, blank.lines.skip = FALSE),
+                          read.xls("data/bls/MSA_1999_dl_2.xls", skip = 43, blank.lines.skip = FALSE))
+bls.metro$`2000` <- rbind(read.xls("data/bls/MSA_2000_dl_1.xls", skip = 42, blank.lines.skip = FALSE),
+                          read.xls("data/bls/MSA_2000_dl_2.xls", skip = 34, blank.lines.skip = FALSE))
+bls.metro$`2001` <- rbind(read.xls("data/bls/MSA_2001_dl_1.xls"),
+                          read.xls("data/bls/MSA_2001_dl_2.xls"),
+                          read.xls("data/bls/MSA_2001_dl_3.xls"))
+bls.metro$`2002` <- rbind(read.xls("data/bls/MSA_2002_dl_1.xls"),
+                          read.xls("data/bls/MSA_2002_dl_2.xls"))
+bls.metro$`2003` <- rbind(read.xls("data/bls/MSA_may2003_dl_1.xls"),
+                          read.xls("data/bls/MSA_may2003_dl_2.xls"))
+bls.metro$`2004` <- rbind(read.xls("data/bls/MSA_may2004_dl_1.xls"),
+                          read.xls("data/bls/MSA_may2004_dl_2.xls"),
+                          read.xls("data/bls/MSA_may2004_dl_3.xls"))
+bls.metro$`2005` <- rbind(read.xls("data/bls/MSA_may2005_dl_1.xls"),
+                          read.xls("data/bls/MSA_may2005_dl_2.xls"),
+                          read.xls("data/bls/MSA_may2005_dl_3.xls"))
+bls.metro$`2006` <- rbind(read.xls("data/bls/MSA_may2006_dl_1.xls"),
+                          read.xls("data/bls/MSA_may2006_dl_2.xls"),
+                          read.xls("data/bls/MSA_may2006_dl_3.xls"))
+bls.metro$`2007` <- rbind(read.xls("data/bls/MSA_May2007_dl_1.xls"),
+                          read.xls("data/bls/MSA_May2007_dl_2.xls"),
+                          read.xls("data/bls/MSA_May2007_dl_3.xls"))
+bls.metro$`2008` <- rbind(read.xls("data/bls/MSA_M2008_dl_1.xls"),
+                          read.xls("data/bls/MSA_M2008_dl_2.xls"),
+                          read.xls("data/bls/MSA_M2008_dl_3.xls"))
+bls.metro$`2009` <- rbind(read.xls("data/bls/MSA_dl_1.xls"),
+                          read.xls("data/bls/MSA_dl_2.xls"),
+                          read.xls("data/bls/MSA_dl_3.xls"))
+bls.metro$`2010` <- rbind(read.xls("data/bls/MSA_M2010_dl_1.xls"),
+                          read.xls("data/bls/MSA_M2010_dl_2.xls"),
+                          read.xls("data/bls/MSA_M2010_dl_3.xls"))
+bls.metro$`2011` <- rbind(read.xls("data/bls/MSA_M2011_dl_1_AK_IN.xls"),
+                          read.xls("data/bls/MSA_M2011_dl_2_KS_NY.xls"),
+                          read.xls("data/bls/MSA_M2011_dl_3_OH_WY.xls"))
+bls.metro$`2012` <- rbind(read.xls("data/bls/MSA_M2012_dl_1_AK_IN.xls"),
+                          read.xls("data/bls/MSA_M2012_dl_2_KS_NY.xls"),
+                          read.xls("data/bls/MSA_M2012_dl_3_OH_WY.xls"))
+bls.metro$`2013` <- rbind(read.xls("data/bls/MSA_M2013_dl_1_AK_IN.xls"),
+                          read.xls("data/bls/MSA_M2013_dl_2_KS_NY.xls"),
+                          read.xls("data/bls/MSA_M2013_dl_3_OH_WY.xls"))
+bls.metro$`2014` <- read.xlsx("data/bls/MSA_M2014_dl.xlsx")
+bls.metro$`2015` <- read.xlsx("data/bls/MSA_M2015_dl.xlsx")
+
+
+
 # Process state
 state.cols <- c("state", 
                 "occ_code", 
@@ -54,18 +107,17 @@ state.cols <- c("state",
 bls.state <- 
   foreach(bls.year = bls.state) %do% {
     names(bls.year) <- tolower(names(bls.year))
-    bls.year$tot_emp <- as.numeric(as.character(bls.year$tot_emp))
-    bls.year$annual_wages_mean <- as.numeric(as.character(bls.year$a_mean))
-    bls.year$annual_wages_median <- as.numeric(as.character(bls.year$a_median))
-    bls.year <- bls.year[ , state.cols]
-    
+    bls.year$tot_emp <- as.numeric(gsub(",", "", (bls.year$tot_emp)))
+    bls.year$annual_wages_mean <- as.numeric(gsub(",", "", (bls.year$a_mean)))
+    bls.year$annual_wages_median <- as.numeric(gsub(",", "", (bls.year$a_median)))
+    bls.year[ , state.cols]
   }
 names(bls.state) <- 1997:2015
 bls.state <- do.call(rbind, bls.state)
 bls.state$year <- substr(rownames(bls.state), 1,4)
 rownames(bls.state) <- NULL
 saveRDS(bls.state, "data/processed/bls_state.RDS")
-  
+
 # Process industry
 ind.cols <- c("naics", 
               "naics_title", 
@@ -80,13 +132,43 @@ bls.industry <-
     names(bls.year)[names(bls.year) == "sic"] <- "naics"
     names(bls.year)[names(bls.year) == "sic_title"] <- "naics_title"
     bls.year$occ_code  <- as.character(bls.year$occ_code)
-    bls.year$tot_emp <- as.numeric(as.character(bls.year$tot_emp))
-    bls.year$annual_wages_mean <- as.numeric(as.character(bls.year$a_mean))
-    bls.year$annual_wages_median <- as.numeric(as.character(bls.year$a_median))
-    bls.year <- bls.year[ , ind.cols]
+    bls.year$tot_emp <- as.numeric(gsub(",", "", (bls.year$tot_emp)))
+    bls.year$annual_wages_mean <- as.numeric(gsub(",", "", (bls.year$a_mean)))
+    bls.year$annual_wages_median <- as.numeric(gsub(",", "", (bls.year$a_median)))
+    bls.year[ , ind.cols]
   }
 names(bls.industry) <- ind.yrs
 bls.industry <- do.call(rbind, bls.industry)
 bls.industry$year <- substr(rownames(bls.industry), 1,4)
 rownames(bls.industry) <- NULL
 saveRDS(bls.industry, "data/processed/bls_industry.RDS")
+
+# Process industry
+metro.cols <- c("state", 
+              "area", 
+              "area_name",
+              "occ_code",
+              "tot_emp",
+              "annual_wages_mean",
+              "annual_wages_median")
+metro.yrs <- names(bls.metro)
+bls.metro <- 
+  foreach(bls.year = bls.metro) %do% {
+    names(bls.year) <- tolower(names(bls.year))
+    names(bls.year)[names(bls.year) == "prim_state"] <- "state"
+    bls.year$occ_code  <- as.character(bls.year$occ_code)
+    bls.year$tot_emp <- as.numeric(gsub(",", "", (bls.year$tot_emp)))
+    bls.year$annual_wages_mean <- as.numeric(gsub(",", "", (bls.year$a_mean)))
+    if("a_median" %in% names(bls.year)) {
+      bls.year$annual_wages_median <- as.numeric(gsub(",", "", (bls.year$a_median)))
+    }
+    else {
+      bls.year$annual_wages_median <- NA
+    }
+    bls.year[ , metro.cols]
+  }
+names(bls.metro) <- metro.yrs
+bls.metro <- do.call(rbind, bls.metro)
+bls.metro$year <- substr(rownames(bls.metro), 1,4)
+rownames(bls.metro) <- NULL
+saveRDS(bls.metro, "data/processed/bls_metro.RDS")
