@@ -12,6 +12,7 @@ names(onet) <- gsub(".txt", "", list.files("data/O_NET/"))
 # Ingest State BLS OES data
 bls.state <- list()
 bls.state$`1997` <- read.xls("data/bls/state_1997_dl.xls", 1, skip = 40, blank.lines.skip = FALSE)
+bls.state$`1997` <- subset(bls.state$`1997`, !is.na(occ_code))
 bls.state$`1998` <- read.xls("data/bls/state_1998_dl.xls", 1, skip = 41, blank.lines.skip = FALSE)
 bls.state$`1999` <- read.xls("data/bls/state_1999_dl.xls", 1, skip = 43, blank.lines.skip = FALSE)
 bls.state$`2000` <- read.xls("data/bls/state_2000_dl.xls", 1, skip = 42, blank.lines.skip = FALSE)
@@ -38,21 +39,52 @@ bls.industry <- lapply(to.get, read.xls, sheet = 1)
 to.get2 <- list.files("data/bls/", pattern = "nat3d.*xlsx$", full.names = TRUE)
 bls.industry <- c(bls.industry, lapply(to.get2, read.xlsx, sheet = 1))
 names(bls.industry) <- c(str_extract(to.get, "[0-9]{4}"), str_extract(to.get2, "[0-9]{4}"))
+bls.industry$`1997` <- read.xls("data/bls/nat3d_sic_1997_dl.xls", 1, skip = 32, blank.lines.skip = FALSE)
+bls.industry$`1998` <- read.xls("data/bls/nat3d_sic_1998_dl.xls", 1, skip = 32, blank.lines.skip = FALSE)
+bls.industry$`1999` <- read.xls("data/bls/nat3d_sic_1999_dl.xls", 1, skip = 35, blank.lines.skip = FALSE)
+bls.industry$`2000` <- read.xls("data/bls/nat3d_sic_2000_dl.xls", 1, skip = 34, blank.lines.skip = FALSE)
 
 
 # Process state
 state.cols <- c("state", 
                 "occ_code", 
+                "tot_emp",
                 "a_mean",
                 "a_median")
 bls.state <- 
   foreach(bls.year = bls.state) %do% {
     names(bls.year) <- tolower(names(bls.year))
-    names(bls.year)[names(bls.year) == "group"] <- "occ_group"
-    bls.year <- subset(bls.year, occ_group %in% c("", "detailed"), select = state.cols)
+    bls.year$tot_emp <- as.numeric(bls.year$tot_emp)
+    bls.year <- bls.year[ , state.cols]
+    
   }
 names(bls.state) <- 1997:2015
 bls.state <- do.call(rbind, bls.state)
 bls.state$year <- substr(rownames(bls.state), 1,4)
 rownames(bls.state) <- NULL
+bls.state$a_mean <- as.numeric(bls.state$a_mean)
+bls.state$a_mean <- as.numeric(bls.state$a_mean)
 saveRDS(bls.state, "data/processed/bls_state.RDS")
+  
+# Process industry
+ind.cols <- c("naics", 
+              "naics_title", 
+              "occ_code",
+              "tot_emp",
+              "a_mean",
+              "a_median")
+ind.yrs <- names(bls.industry)
+bls.industry <- 
+  foreach(bls.year = bls.industry) %do% {
+    names(bls.year) <- tolower(names(bls.year))
+    names(bls.year)[names(bls.year) == "sic"] <- "naics"
+    names(bls.year)[names(bls.year) == "sic_title"] <- "naics_title"
+    bls.year$occ_code  <- as.character(bls.year$occ_code)
+    bls.year$tot_emp <- as.numeric(bls.year$tot_emp)
+    bls.year <- bls.year[ , ind.cols]
+  }
+names(bls.industry) <- ind.yrs
+bls.industry <- do.call(rbind, bls.industry)
+bls.industry$year <- substr(rownames(bls.industry), 1,4)
+rownames(bls.industry) <- NULL
+saveRDS(bls.industry, "data/processed/bls_industry.RDS")
