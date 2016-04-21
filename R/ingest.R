@@ -9,6 +9,12 @@ onet <- lapply(list.files("data/O_NET/", full.names = TRUE),
                read.csv, fill = TRUE, header = TRUE, sep = '\t')
 names(onet) <- gsub(".txt", "", list.files("data/O_NET/"))
 
+crosswalk <- list()
+crosswalk[[1]] <- read.csv("data/crosswalks/2000_to_2006_Crosswalk.csv")
+crosswalk[[2]] <- read.csv("data/crosswalks/2006_to_2009_Crosswalk.csv")
+crosswalk[[3]] <- read.csv("data/crosswalks/2009_to_2010_Crosswalk.csv")
+crosswalk <- Reduce(function(...) merge(..., all = T), crosswalk)
+crosswalk <- as.data.frame(sapply(crosswalk, gsub, pattern = "[.][0-9]{2}", replacement = ""))
 
 # Ingest State BLS OES data
 bls.state <- list()
@@ -96,6 +102,17 @@ bls.metro$`2013` <- rbind(read.xls("data/bls/MSA_M2013_dl_1_AK_IN.xls"),
 bls.metro$`2014` <- read.xlsx("data/bls/MSA_M2014_dl.xlsx")
 bls.metro$`2015` <- read.xlsx("data/bls/MSA_M2015_dl.xlsx")
 
+# To get consistent occupation names:
+bls.crosswalk <- function(bls.set){
+  bls.set$O.NET.SOC.Code[bls.set$year %in% 2000:2005] <- 
+    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2000:2005], crosswalk$O.NET.SOC.2000.Code)]
+  bls.set$O.NET.SOC.Code[bls.set$year %in% 2006:2008] <- 
+    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2006:2008], crosswalk$O.NET.SOC.2000.Code)]
+  bls.set$O.NET.SOC.Code[bls.set$year == 2009] <- 
+    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year == 2009], crosswalk$O.NET.SOC.2000.Code)]
+  bls.set$O.NET.SOC.Code[bls.set$year >= 2010] <- bls.set$occ_code[bls.set$year >= 2010]
+  return(bls.set)
+}
 
 
 # Process state
@@ -116,6 +133,7 @@ names(bls.state) <- 1997:2015
 bls.state <- do.call(rbind, bls.state)
 bls.state$year <- substr(rownames(bls.state), 1,4)
 rownames(bls.state) <- NULL
+bls.state <- bls.crosswalk(bls.state)
 saveRDS(bls.state, "data/processed/bls_state.RDS")
 
 # Process industry
@@ -141,6 +159,7 @@ names(bls.industry) <- ind.yrs
 bls.industry <- do.call(rbind, bls.industry)
 bls.industry$year <- substr(rownames(bls.industry), 1,4)
 rownames(bls.industry) <- NULL
+bls.industry <- bls.crosswalk(bls.industry)
 saveRDS(bls.industry, "data/processed/bls_industry.RDS")
 
 # Process industry
@@ -171,4 +190,5 @@ names(bls.metro) <- metro.yrs
 bls.metro <- do.call(rbind, bls.metro)
 bls.metro$year <- substr(rownames(bls.metro), 1,4)
 rownames(bls.metro) <- NULL
+bls.metro <- bls.crosswalk(bls.metro)
 saveRDS(bls.metro, "data/processed/bls_metro.RDS")
