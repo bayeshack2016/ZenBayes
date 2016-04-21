@@ -9,4 +9,4 @@ education.reqs <- subset(`Education, Training, and Experience`, Scale.ID == 'RL'
 
 education.reqs$mid.skill <- education.reqs$value >=2 & education.reqs$value <=6
 education.reqs$Element.Name <- NULL
-saveRDS(education.reqs, "data/processed/mid_skill.R")
+saveRDS(education.reqs, "data/processed/mid_skill.RDS")
