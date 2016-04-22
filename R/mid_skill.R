@@ -1,3 +1,5 @@
+# Author: Ryan Brady
+
 # if not using Rstudio project:
 # setwd("..")
 

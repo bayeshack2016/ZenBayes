@@ -1,3 +1,5 @@
+# Author: Ryan Brady
+
 onet.all <- readRDS("data/processed/onet_all_years.RDS")
 
 onet.all.combined <- foreach(j  = 1:length(onet.all)) %do% {

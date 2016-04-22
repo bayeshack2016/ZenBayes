@@ -1,3 +1,5 @@
+# Author: Ryan Brady
+
 library(openxlsx)
 library(reshape2)
 library(foreach)
@@ -105,12 +107,12 @@ bls.metro$`2015` <- read.xlsx("data/bls/MSA_M2015_dl.xlsx")
 # To get consistent occupation names:
 bls.crosswalk <- function(bls.set){
   bls.set$O.NET.SOC.Code[bls.set$year %in% 2000:2005] <- 
-    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2000:2005], crosswalk$O.NET.SOC.2000.Code)]
+    as.character(crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2000:2005], crosswalk$O.NET.SOC.2000.Code)])
   bls.set$O.NET.SOC.Code[bls.set$year %in% 2006:2008] <- 
-    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2006:2008], crosswalk$O.NET.SOC.2000.Code)]
+    as.character(crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year %in% 2006:2008], crosswalk$O.NET.SOC.2000.Code)])
   bls.set$O.NET.SOC.Code[bls.set$year == 2009] <- 
-    crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year == 2009], crosswalk$O.NET.SOC.2000.Code)]
-  bls.set$O.NET.SOC.Code[bls.set$year >= 2010] <- bls.set$occ_code[bls.set$year >= 2010]
+    as.character(crosswalk$O.NET.SOC.2010.Code[match(bls.set$occ_code[bls.set$year == 2009], crosswalk$O.NET.SOC.2000.Code)])
+  bls.set$O.NET.SOC.Code[bls.set$year >= 2010] <- as.character(bls.set$occ_code[bls.set$year >= 2010])
   return(bls.set)
 }
 
