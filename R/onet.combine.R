@@ -1,4 +1,7 @@
 # Author: Ryan Brady
+library(zoo)
+library(foreach)
+library(dplyr)
 
 onet.all <- readRDS("data/processed/onet_all_years.RDS")
 
@@ -25,4 +28,6 @@ onet.all.combined <- plyr::rbind.fill(onet.all.combined[is.na(onet.all.combined$
 onet.all.combined$Date[onet.all.combined$onet.source == "June.2002"] <- "3/2002"
 onet.all.combined$onet.source <- NULL
 onet.all.combined <- unique(onet.all.combined)
+onet.all.combined <- onet.all.combined[onet.all.combined$Scale.ID != "VH", !names(onet.all.combined) %in% "Domain.Source"] 
+onet.all.combined$Date <- as.Date(as.yearmon(onet.all.combined$Date, format = "%m/%Y"))
 saveRDS(onet.all.combined, "data/processed/onet_combined.RDS")
