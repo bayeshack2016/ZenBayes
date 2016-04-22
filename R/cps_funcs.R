@@ -1,4 +1,5 @@
 # author: Ryan Brady
+library(data.table)
 cps <- readRDS("data/processed/cps.RDS")
 
 #' Get cps data series
