@@ -194,3 +194,11 @@ bls.metro$year <- substr(rownames(bls.metro), 1,4)
 rownames(bls.metro) <- NULL
 bls.metro <- bls.crosswalk(bls.metro)
 saveRDS(bls.metro, "data/processed/bls_metro.RDS")
+
+
+bls.project  <- read.csv("data/bls/Employment Projections.csv")
+bls.project <- bls.project[, c("SOC.Code", "X2014", "X2024")]
+bls.project$X2014 <- as.numeric(gsub(",", "", bls.project$X2014)) * 1000
+bls.project$X2024 <- as.numeric(gsub(",", "", bls.project$X2024)) * 1000
+names(bls.project) <- c("SOC.Code", "employment.2014", "employment.2024")
+saveRDS(bls.project, "data/processed/bls_project.RDS")
