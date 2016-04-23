@@ -7,7 +7,7 @@ get.onet.data.table<-function(path){
 }
 
 
-get.title<-function(bls.sec.code, onet.data){
+get.titles<-function(bls.sec.code, onet.data){
 return(df[O.NET.SOC.Code %like% bls.sec.code, Title])
 }
 
