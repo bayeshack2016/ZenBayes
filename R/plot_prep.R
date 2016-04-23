@@ -16,3 +16,18 @@ graph.data$Related.O.NET.SOC.Code <- gsub("[.][0-9]{2}", "", graph.data$Related.
 graph.data <- unique(graph.data[graph.data[,1] != graph.data[,2],1:2])
 # Takes no time.
 career.graph <- graph.data.frame(graph.data)
+
+
+# Change these
+size = 5
+color = 1
+label = NA
+
+test.graph <- induced_subgraph(career.graph, neighborhood(career.graph, 1, "51-4022")[[1]])
+
+plot(test.graph, 
+     vertex.size = size,
+     edge.width = 0.5,
+     edge.arrow.size = 0.01,
+     vertex.color = color,
+     vertex.label = label)
