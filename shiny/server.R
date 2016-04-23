@@ -7,8 +7,58 @@
 
 library(shiny)
 library(igraph)
+library(dplyr)
+
+initialize<-function(){
+  onet <- lapply(list.files("data/O_NET/", full.names = TRUE), 
+                 read.csv, fill = TRUE, header = TRUE, sep = '\t');
+  names(onet) <- gsub(".txt", "", list.files("data/O_NET/"))
+  graph.data <- onet$`Career Changers Matrix`[,-3]
+  graph.data$O.NET.SOC.Code <- gsub("[.][0-9]{2}", "", graph.data$O.NET.SOC.Code)
+  graph.data$Related.O.NET.SOC.Code <- gsub("[.][0-9]{2}", "", graph.data$Related.O.NET.SOC.Code)
+  graph.data$O.NET.SOC.Code <- gsub("-", "", graph.data$O.NET.SOC.Code)
+  graph.data$Related.O.NET.SOC.Code <- gsub("-", "", graph.data$Related.O.NET.SOC.Code)
+  return(graph.data)
+}
+
+plot_graph <-function(graph.data){
+  career.graph <- graph.data.frame(graph.data)
+  career.cluster <- cluster_spinglass(career.graph)
+  to.lab <- data.frame(cluster = career.cluster$membership, 
+                       label = career.cluster$names,
+                       size = sizes) %>% 
+    group_by(cluster) %>% 
+    summarize(label = label[which.max(size)])
+  labs <- names(V(career.graph))
+  labs[!labs %in% to.lab$label] <- NA
+  lab.tab <- `Occupation Data`[,-3]
+  lab.tab[,1]  <- gsub("[.][0-9]{2}", "", lab.tab[,1] )
+  lab.tab[,1] <- gsub("-", "", lab.tab[,1])
+  labs <- as.character(lab.tab[match(labs, lab.tab[,1]),2])
+  
+  # Size by logscale employment
+  sizes <- bls.oc.employment[match(names(V(career.graph)), bls.oc.employment[,1]),4]
+  sizes <- sizes / max(sizes, na.rm=T)
+  sizes <- log(sizes) + 11
+  sizes[is.na(sizes)] <- 1
+  
+  plot(career.graph, 
+  vertex.size = sizes,
+  edge.arrow.size = 0.05,
+  edge.width = 0.5,
+  vertex.label = labs,
+  vertex.color = membership(career.cluster))
+  
+  
+}
 
 shinyServer(function(input, output) {
+ 
+  ## One time graph initialization   
+  graph.data<-initialize();
+ 
+  
+  
 
   output$distPlot <- renderPlot({
 
@@ -48,8 +98,8 @@ shinyServer(function(input, output) {
 
     par(mfrow=c(2,2),mar=c(0,0,0,0), oma=c(0,0,0,0))
     g <- watts.strogatz.game(1,20,3,0.4)
-    plot(g,layout=layout.fruchterman.reingold,margin=0)   
-    
+    # plot(g,layout=layout.fruchterman.reingold,margin=0)   
+    plot_graph(graph.data)
   })
   
   
