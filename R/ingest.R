@@ -41,6 +41,23 @@ bls.state$`2013`<- read.xls("data/bls/state_M2013_dl.xls", 1)
 bls.state$`2014`<- read.xlsx("data/bls/state_M2014_dl.xlsx", 1)
 bls.state$`2015`<- read.xlsx("data/bls/state_M2015_dl.xlsx", 1)
 
+# Ingest National BLS OES data
+bls.national <- list()
+bls.national$`2001` <- read.xls("data/bls/national_2001_dl.xls", 1)
+bls.national$`2002` <- read.xls("data/bls/national_2002_dl.xls", 1)
+bls.national$`2003` <- read.xls("data/bls/national_may2003_dl.xls", 1)
+bls.national$`2004` <- read.xls("data/bls/national_may2004_dl.xls", 1)
+bls.national$`2005` <- read.xls("data/bls/national_may2005_dl.xls", 1)
+bls.national$`2006` <- read.xls("data/bls/national_may2006_dl.xls", 1)
+bls.national$`2007` <- read.xls("data/bls/national_May2007_dl.xls", 1)
+bls.national$`2008`<- read.xls("data/bls/national__M2008_dl.xls", 1)
+bls.national$`2009`<- read.xls("data/bls/national_dl.xls", 1)
+bls.national$`2010`<- read.xls("data/bls/national_M2010_dl.xls", 1)
+bls.national$`2011`<- read.xls("data/bls/national_M2011_dl.xls", 1)
+bls.national$`2012`<- read.xls("data/bls/national_M2012_dl.xls", 1)
+bls.national$`2013`<- read.xls("data/bls/national_M2013_dl.xls", 1)
+bls.national$`2014`<- read.xlsx("data/bls/national_M2014_dl.xlsx", 1)
+bls.national$`2015`<- read.xlsx("data/bls/national_M2015_dl.xlsx", 1)
 
 # Ingest Industry BLS OES data
 to.get <- list.files("data/bls/", pattern = "nat3d.*xls$", full.names = TRUE)
@@ -133,10 +150,31 @@ bls.state <-
   }
 names(bls.state) <- 1997:2015
 bls.state <- do.call(rbind, bls.state)
-bls.state$year <- substr(rownames(bls.state), 1,4)
+bls.state$year <- as.numeric(substr(rownames(bls.state), 1,4))
 rownames(bls.state) <- NULL
 bls.state <- bls.crosswalk(bls.state)
 saveRDS(bls.state, "data/processed/bls_state.RDS")
+
+# Process national
+national.cols <- c("occ_code", 
+                "tot_emp",
+                "annual_wages_mean",
+                "annual_wages_median")
+bls.national <- 
+  foreach(bls.year = bls.national) %do% {
+    names(bls.year) <- tolower(names(bls.year))
+    bls.year$tot_emp <- as.numeric(gsub(",", "", (bls.year$tot_emp)))
+    bls.year$annual_wages_mean <- as.numeric(gsub(",", "", (bls.year$a_mean)))
+    bls.year$annual_wages_median <- as.numeric(gsub(",", "", (bls.year$a_median)))
+    bls.year[ , national.cols]
+  }
+names(bls.national) <- 2001:2015
+bls.national <- do.call(rbind, bls.national)
+bls.national$year <- as.numeric(substr(rownames(bls.national), 1,4))
+rownames(bls.national) <- NULL
+bls.national <- bls.crosswalk(bls.national)
+saveRDS(bls.national, "data/processed/bls_national.RDS")
+
 
 # Process industry
 ind.cols <- c("naics", 
@@ -159,7 +197,7 @@ bls.industry <-
   }
 names(bls.industry) <- ind.yrs
 bls.industry <- do.call(rbind, bls.industry)
-bls.industry$year <- substr(rownames(bls.industry), 1,4)
+bls.industry$year <- as.numeric(substr(rownames(bls.industry), 1,4))
 rownames(bls.industry) <- NULL
 bls.industry <- bls.crosswalk(bls.industry)
 saveRDS(bls.industry, "data/processed/bls_industry.RDS")
@@ -190,7 +228,7 @@ bls.metro <-
   }
 names(bls.metro) <- metro.yrs
 bls.metro <- do.call(rbind, bls.metro)
-bls.metro$year <- substr(rownames(bls.metro), 1,4)
+bls.metro$year <- as.numeric(substr(rownames(bls.metro), 1,4))
 rownames(bls.metro) <- NULL
 bls.metro <- bls.crosswalk(bls.metro)
 saveRDS(bls.metro, "data/processed/bls_metro.RDS")
