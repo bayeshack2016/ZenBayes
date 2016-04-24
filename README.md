@@ -22,7 +22,7 @@ An important questions to answer is what can an individual with a declining occu
 
 ## Resource
 
-Two sources of data are used. The first is the O*NET Resource Center, which gives detailed information about work and worker characteristics, including the skillsets most pertinent to the current middle-skill shift. The second is, the Bureau of Labor Statistics, which collects and publishes a lot of labor statistics. Specifically, [Labor Force Statistics from the Current Population Survey](http://www.bls.gov/cps/data.htm) and [Occupational Employment Statistics](http://www.bls.gov/oes/tables.htm).
+Two sources of data are used. The first is the [O*NET Resource Center](http://www.onetcenter.org/database.html?p=2), which gives detailed information about work and worker characteristics, including the skillsets most pertinent to the current middle-skill shift. The second is, the Bureau of Labor Statistics, which collects and publishes a lot of labor statistics. Specifically, [Employment Projections from 2014 to 2024](http://www.bls.gov/emp/).
 
 ## Methods
 
