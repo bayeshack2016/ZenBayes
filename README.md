@@ -35,6 +35,15 @@ In general terms, the model works by treating the 2024 job projections as a 'cap
 
 Second, a score function, based on a computed distance measure between an occupation of interest and every other occupation, is used to obtain scores that represent the ease of transitioning from the occupation of interest to the other occupations. Those scores are then ranked and the occupations with best scores are picked as the best to transition to. This score is suitable for use as a resistance in the above graph method.
 
+## Instructions to run
+Running the application requires knowledge of the shiny package in R. Instructions and tutorials can be found [here](http://shiny.rstudio.com/tutorial/lesson1/).
+
+1. Install R studio
+2. Install the following R packages - shiny, data.table, igraph, dplyr, ggplot2, stringr
+3. Clone this repo
+3. Run server.R in the 'shiny' folder
+
+
 ## License
 
 The code is released in a GPL v3 license (as provided in LICENSE). The data was downloaded (and then processed) from various government and government-affiliated organizations [sources](http://bayeshack.org/labor.html). Please consult respective sources for possible data usage restrictions.
