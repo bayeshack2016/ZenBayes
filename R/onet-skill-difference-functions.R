@@ -27,15 +27,16 @@ get.BminusA <- function(socA, socB, onet) {
 compute.workstyles.diff <- function(df) {
     df.subset <- subset(df, domain == "WorkStyles")
     library(testthat)
+    if (nrow(df.subset) == 0) return(as.numeric(NA))
     expect_equal(unique(df.subset$Scale.ID), "IM")
-    return(mean(df.subset$BminusA[df.subset$BminusA > 0]))
+    return(mean(df.subset$BminusA[df.subset$BminusA >= 0]))
 }
 
 compute.workvalues.diff <- function(df) {
     df.subset <- subset(df, domain == "WorkValues")
     library(testthat)
     expect_true(all(unique(df.subset$Scale.ID) %in% c("EN", "EX")))
-    return(mean(df.subset$BminusA[df.subset$BminusA > 0]))
+    return(mean(df.subset$BminusA[df.subset$BminusA >= 0]))
 }
 
 compute.workcontext.diff <- function(df) {
@@ -49,7 +50,7 @@ compute.workcontext.diff <- function(df) {
     # For now, we do not care about the categories themselves (i.e. CX, CT) as long as we
     # subtract the required level at the same scale.
     df.subset <- subset(df.subset, Scale.ID %in% c("CXP", "CTP"))
-    return(mean(df.subset$BminusA[df.subset$BminusA > 0]))
+    return(mean(df.subset$BminusA[df.subset$BminusA >= 0]))
 }
 
 compute.imp.lvl.diff <- function(df, this.domain) {
@@ -59,16 +60,19 @@ compute.imp.lvl.diff <- function(df, this.domain) {
     expect_true(all(unique(df.subset$Scale.ID) %in% c("IM", "LV")))
     expect_equal(sum(df.subset$Scale.ID == "IM"), sum(df.subset$Scale.ID == "LV"))
 
+    # Quick return
+    if (nrow(df.subset) == 0) return(NA)
+
     # Unmelt the dataframes for each soc codes
-    dfA <- dcast(df.subset, Element.Name ~ Scale.ID, value.var = "mean.value.A")
-    dfB <- dcast(df.subset, Element.Name ~ Scale.ID, value.var = "mean.value.B")
+    dfA <- reshape2::dcast(df.subset, Element.Name ~ Scale.ID, value.var = "mean.value.A")
+    dfB <- reshape2::dcast(df.subset, Element.Name ~ Scale.ID, value.var = "mean.value.B")
     BminusA <- merge(dfA, dfB, by = "Element.Name", suffixes = c(".A", ".B"))
 
     # Compute the score as (IM * LV)_B - (IM * LV)_A
     BminusA$IM.LV.A <- BminusA$IM.A * BminusA$LV.A
     BminusA$IM.LV.B <- BminusA$IM.B * BminusA$LV.B
     BminusA$IM.LV.B.minus.IM.LV.A <- BminusA$IM.LV.B - BminusA$IM.LV.A
-    return(mean(BminusA$IM.LV.B.minus.IM.LV.A[BminusA$IM.LV.B.minus.IM.LV.A > 0]))
+    return(mean(BminusA$IM.LV.B.minus.IM.LV.A[BminusA$IM.LV.B.minus.IM.LV.A >= 0]))
 }
 
 compute.knowledge.diff <- function(df) {
@@ -97,12 +101,40 @@ compute.score <- function(df, w = rep(1, 7)) {
     works.activities <- compute.work.activities.diff(df) # 0 - 35
 
     x <- c(workstyles/4, workvalues/4, workcontext/100, knowledge/35, skills/35, abilities/35, works.activities/35)
-    score  <- sum(x * w)/sum(w)
-    return(score)
+
+    # Compute the mean treating for NAs
+    not.na.logical <- !is.na(x)
+    score <- sum(x[not.na.logical] * w[not.na.logical])/sum(w[not.na.logical])
+    if (length(score) == 0) {
+        return(NA)
+    } else {
+        return(score)
+    }
 }
 
+get.all.soc.codes <- function(onet) sort(unique(onet$SOC))
 
-# prakash <- function(socA, <list-odatasets>) {
+get.score.df <- function(socA, onet) {
+    soc.all <- get.all.soc.codes(onet)
+    socB.vec <- setdiff(soc.all, socA)
 
-#     # Return df with nice columns
-# }
+    output.list <- lapply(socB.vec, function(socB) {
+        # print(socB)
+        df <- get.BminusA(socA, socB, onet)
+        c(compute.workstyles.diff(df), compute.workvalues.diff(df),
+          compute.workcontext.diff(df), compute.knowledge.diff(df),
+          compute.skills.diff(df), compute.abilities.diff(df),
+          compute.work.activities.diff(df), compute.score(df))
+    })
+    names(output.list) <- socB.vec
+
+    # Return df with nice columns
+    output.df <- plyr::ldply(output.list, .id = "soc")
+    names(output.df) <- c("soc", "workstyles", "workvalues", "workcontext",
+                          "knowledge", "skills", "abilities",
+                          "work.activities", "score")
+    output.df <- dplyr::arrange(output.df, dplyr::desc(score))
+    output.df$soc <- as.character(output.df$soc)
+    return(output.df)
+}
+
