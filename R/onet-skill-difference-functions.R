@@ -186,6 +186,14 @@ get.closest.df <- function(socA, onet, score.df.list = NULL) {
     # related to the socA.
     score.df <- dplyr::arrange(score.df, score)
 
+    # We will try to remove the rows that have NAs in both Skills and Knowledge.
+    # In case after removing both these makes the dataframe too empty,
+    # we will not perform this operation.
+    na.logical.row.index <- is.na(score.df$skills) & is.na(score.df$knowledge)
+    if (nrow(score.df[!na.logical.row.index, ]) > 5) {
+        score.df <- score.df[!na.logical.row.index, ]
+    }
+
     # Rename the columns so that they are fancy and have the correct capitalization.
     replace.vec <- c("title" = "Title", "score" = "Total Score", "skills" = "Skills Score",
                      "knowledge" = "Knowledge Score", "abilities" = "Abilities Score",
