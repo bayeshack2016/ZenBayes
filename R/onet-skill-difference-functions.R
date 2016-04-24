@@ -168,4 +168,31 @@ add.titles.to.score.df <- function(score.df, onet, path.to.occ = "../data/O_NET/
     return(new.score.df)
 }
 
+get.closest.df <- function(socA, onet, score.df.list = NULL) {
+    if (!is.null(score.df.list) && (as.character(socA) %in% names(score.df.list))) {
+        # If score.df.list is provided and it contains the necessary score.df dataframe,
+        # we simply use it.
+        score.df <- score.df.list[socA]
+    } else {
+        # If we are here, we need to generate the score.df dataframe ourselves.
+        # No problem, except that this will take ~2 minutes.
+        score.df <- get.score.df(socA, onet)
+        score.df <- add.titles.to.score.df(score.df, onet)
+    }
+
+    # Sort by increasing values of score.
+    # Score values should be between 0 and 1.
+    # Lower score value means that the corresponding row of score.df is more closely
+    # related to the socA.
+    score.df <- dplyr::arrange(score.df, score)
+
+    # Rename the columns so that they are fancy and have the correct capitalization.
+    replace.vec <- c("title" = "Title", "score" = "Total Score", "skills" = "Skills Score",
+                     "knowledge" = "Knowledge Score", "abilities" = "Abilities",
+                     "workstyles" = "Work Styles", "workvalues" = "Work Values",
+                     "workcontext" = "Work Context", "works.activities" = "Work Activities")
+    score.df <- plyr::rename(score.df, replace = replace.vec)
+    score.df <- score.df[replace.vec]
+    return(score.df)
+}
 

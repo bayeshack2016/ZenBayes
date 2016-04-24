@@ -32,3 +32,5 @@ top.losers.score.df.list <- lapply(top.losers.soc.vec, function(socA) {
     saveRDS(new.score.df, file = paste0(socA, "-score-df.rds"))
     return(new.score.df)
 })
+names(top.losers.score.df.list) <- top.losers.soc.vec
+saveRDS(top.losers.score.df.list, "../data/processed/top-losers-score-df-list.rds")
