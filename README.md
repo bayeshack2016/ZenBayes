@@ -28,6 +28,8 @@ Two sources of data are used. The first is the [O*NET Resource Center](http://ww
 
 Two principal methods are developed. First, borrowing from graph theory, a directed graph structure is used to link occupations with positive outlook to occupations with poor outlook. The algorithm underlying this method attaches weights to the edges linking a poor outlook occupation to closely related positive occupations. The default binary weights are based on a relationship matrix (among occupations) provided by O*NET, but the framework allows for a 'resistance' score between 0 and 1 to indicate the ease of transition between occupations.
 
+In general terms, the model works by treating the 2024 job projections as a 'capacity' and the ratio of 2014 employment to 2024 projections as a 'pressure'. The pressure is then distributed to adjacent nodes, with restrictions that a node starting above 1 pressure can't reduce below 1, and one starting below 1 pressure can't rise above 1. This prevents people from making more than 1 occupational shift. 
+
 ![Graph linking occupations](main.png)
 
 
