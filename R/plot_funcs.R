@@ -78,6 +78,21 @@ plot.subgraph <- function(...) {
   plot(subgraph, 
        edge.width = 1,
        edge.arrow.size = 0.1,
-       vertex.color = 1,
-       vertex.label = NA)
+       vertex.label.dist = 1)
 }
+
+table.subgraph <- function(...) {
+  subgraph <- make.subgraph(...)
+  data.frame(V(subgraph)$names, V(subgraph)$titles)
+}
+
+make.subgraph <- function(career.graph, SOC, distance = 1){
+  SOC <- SOC[SOC %in% names(V(career.graph))]
+  if(length(SOC) == 1) {
+    induced_subgraph(career.graph, v = neighborhood(career.graph, order = distance, nodes = SOC)[[1]])
+  }
+  else {
+    induced_subgraph(career.graph, v = SOC)
+  }
+}
+
