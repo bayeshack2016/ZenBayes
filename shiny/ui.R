@@ -31,7 +31,8 @@ shinyUI(fluidPage(theme = "darkly.css",
                                  tabPanel("Job to move to",
                                           h4("Lower score implies an easier transition between jobs."),
                                           dataTableOutput("table")),
-                                 tabPanel("Job graph", plotOutput("jobgraph"))
+                                 tabPanel("Job graph", plotOutput("jobgraph"), h1(" "),
+                                                                    dataTableOutput("jobgraphtable")
                                  ))
 
                              )
@@ -40,4 +41,4 @@ shinyUI(fluidPage(theme = "darkly.css",
 
 
 
-                             ))))
+                             )))))
