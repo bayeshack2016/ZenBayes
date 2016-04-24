@@ -172,7 +172,7 @@ get.closest.df <- function(socA, onet, score.df.list = NULL) {
     if (!is.null(score.df.list) && (as.character(socA) %in% names(score.df.list))) {
         # If score.df.list is provided and it contains the necessary score.df dataframe,
         # we simply use it.
-        score.df <- score.df.list[socA]
+        score.df <- score.df.list[[socA]]
     } else {
         # If we are here, we need to generate the score.df dataframe ourselves.
         # No problem, except that this will take ~2 minutes.
@@ -188,9 +188,10 @@ get.closest.df <- function(socA, onet, score.df.list = NULL) {
 
     # Rename the columns so that they are fancy and have the correct capitalization.
     replace.vec <- c("title" = "Title", "score" = "Total Score", "skills" = "Skills Score",
-                     "knowledge" = "Knowledge Score", "abilities" = "Abilities",
-                     "workstyles" = "Work Styles", "workvalues" = "Work Values",
-                     "workcontext" = "Work Context", "works.activities" = "Work Activities")
+                     "knowledge" = "Knowledge Score", "abilities" = "Abilities Score",
+                     "workstyles" = "Work Styles Score", "workvalues" = "Work Values Score",
+                     "workcontext" = "Work Context Score",
+                     "work.activities" = "Work Activities Score")
     score.df <- plyr::rename(score.df, replace = replace.vec)
     score.df <- score.df[replace.vec]
     return(score.df)
