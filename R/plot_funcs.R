@@ -103,4 +103,12 @@ make.subgraph <- function(career.graph, SOC, distance = 1){
   }
 }
 
-# plot.whole.graph <- function(career.graph, )
+plot.whole.graph <- function(career.graph){
+  subgraph <- delete.vertices(career.graph, which(degree(career.graph) < 1))
+  plot(subgraph,
+       edge.width = 1,
+       edge.arrow.size = 0.1,
+       vertex.label = NA,
+       vertex.size = V(subgraph)$size / 2)
+  
+}
