@@ -98,9 +98,9 @@ compute.score <- function(df, w = rep(1, 7)) {
     knowledge <- compute.knowledge.diff(df) # 0 - 35
     skills <- compute.skills.diff(df) # 0 - 35
     abilities <- compute.abilities.diff(df) # 0 - 35
-    works.activities <- compute.work.activities.diff(df) # 0 - 35
+    work.activities <- compute.work.activities.diff(df) # 0 - 35
 
-    x <- c(workstyles/4, workvalues/4, workcontext/100, knowledge/35, skills/35, abilities/35, works.activities/35)
+    x <- c(workstyles/4, workvalues/4, workcontext/100, knowledge/35, skills/35, abilities/35, work.activities/35)
 
     # Compute the mean treating for NAs
     not.na.logical <- !is.na(x)
@@ -194,13 +194,22 @@ get.closest.df <- function(socA, onet, score.df.list = NULL) {
         score.df <- score.df[!na.logical.row.index, ]
     }
 
+    # Round off all numbers to 2 digits after the decimal
+    score.df[c("score", "skills", "knowledge", "abilities",
+               "workstyles", "workvalues", "workcontext",
+               "work.activities")] <- round(score.df[c("score", "skills", "knowledge", "abilities",
+                                                       "workstyles", "workvalues", "workcontext",
+                                                       "work.activities")], digits = 2)
+
     # Rename the columns so that they are fancy and have the correct capitalization.
-    replace.vec <- c("soc" = "SOC", "title" = "Title", "score" = "Total Score",
-                     "skills" = "Skills Score",
-                     "knowledge" = "Knowledge Score", "abilities" = "Abilities Score",
-                     "workstyles" = "Work Styles Score", "workvalues" = "Work Values Score",
-                     "workcontext" = "Work Context Score",
-                     "work.activities" = "Work Activities Score")
+    replace.vec <- c("soc" = "SOC", "title" = "Title", "score" = "Total Score (0 - 1) ",
+                     "skills" = "Skills Score (0 - 35)",
+                     "knowledge" = "Knowledge Score (0 - 35)",
+                     "abilities" = "Abilities Score (0 - 35)",
+                     "work.activities" = "Work Activities Score (0 - 35)",
+                     "workstyles" = "Work Styles Score (0 - 4)",
+                     "workvalues" = "Work Values Score (0 - 4)",
+                     "workcontext" = "Work Context Score (0 - 4)")
     score.df <- plyr::rename(score.df, replace = replace.vec)
     score.df <- score.df[unname(replace.vec)]
     return(score.df)
