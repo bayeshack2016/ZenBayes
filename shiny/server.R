@@ -79,11 +79,16 @@ shinyServer(function(input, output) {
   })
 
   output$jobgraph<-renderPlot({
-    input$select
     plot.subgraph(career.graph = career.graph, SOC = as.character(biggest.loss[as.numeric(input$select),]$SOC.Code))
-
+    
 
   })
+  
+  output$jobgraphtable <- renderDataTable({
+    
+    table.subgraph(career.graph = career.graph, SOC = as.character(biggest.loss[as.numeric(input$select),]$SOC.Code))
+  }, options = list(columnDefs = list( searchable = FALSE), searchable = FALSE, pageLength = 5))
+
 
   output$networkplot<-renderPlot({
     input$select
@@ -93,7 +98,7 @@ shinyServer(function(input, output) {
   })
 
   # Scoring Table
-  output$table <- renderDataTable(biggest.loss)
+  #output$table <- renderDataTable(biggest.loss)
   output$table <- renderDataTable({
     cat("\n---------------------------------------\n")
     cat("Logging renderDataTable():")
