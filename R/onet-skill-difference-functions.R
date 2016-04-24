@@ -195,13 +195,14 @@ get.closest.df <- function(socA, onet, score.df.list = NULL) {
     }
 
     # Rename the columns so that they are fancy and have the correct capitalization.
-    replace.vec <- c("title" = "Title", "score" = "Total Score", "skills" = "Skills Score",
+    replace.vec <- c("soc" = "SOC", "title" = "Title", "score" = "Total Score",
+                     "skills" = "Skills Score",
                      "knowledge" = "Knowledge Score", "abilities" = "Abilities Score",
                      "workstyles" = "Work Styles Score", "workvalues" = "Work Values Score",
                      "workcontext" = "Work Context Score",
                      "work.activities" = "Work Activities Score")
     score.df <- plyr::rename(score.df, replace = replace.vec)
-    score.df <- score.df[replace.vec]
+    score.df <- score.df[unname(replace.vec)]
     return(score.df)
 }
 
