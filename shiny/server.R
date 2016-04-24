@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
 
   output$jobgraph<-renderPlot({
     input$select
-    plot.subgraph(career.graph = career.graph, SOC = '11-1011')
+    plot.subgraph(career.graph = career.graph, SOC = biggest.loss[as.numeric(input$select),]$SOC.Code)
     
     
   })
