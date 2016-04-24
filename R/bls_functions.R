@@ -8,6 +8,6 @@ get.onet.data.table<-function(path){
 
 
 get.titles<-function(bls.sec.code, onet.data){
-return(df[O.NET.SOC.Code %like% bls.sec.code, Title])
+return(paste(onet.data[O.NET.SOC.Code %like% bls.sec.code, Title], collapse = "_"))
 }
 
