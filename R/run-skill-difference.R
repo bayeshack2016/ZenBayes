@@ -14,7 +14,6 @@ options(dplyr.width = Inf)
 source("onet-skill-difference-functions.R")
 
 onet <- readRDS("../data/processed/onet_combined_averaged.RDS")
-# onet.orig <- readRDS("../data/processed/")
 
 # We will use these two soc codes as an example.
 socA <- "51-4121" # Welders
@@ -44,13 +43,26 @@ print(compute.score(df))
 # socB <- "51-4041" # Machinists
 # compute.score(get.BminusA(socA, socB, onet))
 
+title.df <- get.title.df(onet)
+
 # In bayeshack2016/R folder
 library(reshape2)
 onet <- readRDS("../data/processed/onet_combined_averaged.RDS")
-socA <- "51-4121" # Welders
 source("onet-skill-difference-functions.R")
-# source("")
-x <- get.score.df(socA, onet)
-socB <- "11-1031"
+source("bls_functions.R")
+
+
+socA <- "51-4121" # Welders
+socA <- "15-1131" # Computer Programmers
+socA <- "13-1199" # Custom Brokers
+socA <- "39-1021" # Spa Manager
+socA <- "11-9013" # Mystery
+score.df <- get.score.df(socA, onet)
+new.score.df <- add.titles.to.score.df(score.df, onet)
+
+print(head(new.score.df))
+print(tail(new.score.df))
+socB <- "15-1131" # Computer Programmers
 df <- get.BminusA(socA, socB, onet)
 compute.workstyles.diff(df)
+

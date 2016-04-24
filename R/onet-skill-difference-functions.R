@@ -138,3 +138,34 @@ get.score.df <- function(socA, onet) {
     return(output.df)
 }
 
+get.title.df <- function(onet, path.to.occ = "../data/O_NET/Occupation Data.txt") {
+    # Read the data file as a data table
+    library(data.table)
+    occ.dt <- get.onet.data.table(path.to.occ)
+
+    # Get the titles
+    soc.vec <- get.all.soc.codes(onet)
+    title.vec <- vapply(soc.vec, get.titles, "example output", occ.dt)
+
+    # Make a dataframe and return
+    library(testthat)
+    expect_identical(soc.vec, names(title.vec))
+    names(title.vec) <- NULL
+    return(data.frame(soc = soc.vec, title = title.vec, stringsAsFactors = FALSE))
+}
+
+add.titles.to.score.df <- function(score.df, onet, path.to.occ = "../data/O_NET/Occupation Data.txt") {
+    title.df <- get.title.df(onet, path.to.occ)
+
+    library(testthat)
+    expect_false("title" %in% names(score.df))
+
+    # Merge and return
+    new.score.df <- base::merge(score.df, title.df, by = "soc", all.x = TRUE, all.y = FALSE)
+    expect_equal(nrow(score.df), nrow(new.score.df))
+    expect_false(any(is.na(new.score.df$title)))
+    new.score.df <- dplyr::arrange(new.score.df, dplyr::desc(score))
+    return(new.score.df)
+}
+
+
