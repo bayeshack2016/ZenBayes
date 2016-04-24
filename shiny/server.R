@@ -8,6 +8,7 @@
 library(shiny)
 library(igraph)
 library(dplyr)
+source("../R/plot_funcs.R")
 
 initialize<-function(){
   bls <- readRDS("../data/processed/bls_project_gain_loss_sorted_titles.rds")
@@ -94,13 +95,9 @@ shinyServer(function(input, output) {
   })
 
   output$jobgraph<-renderPlot({
-    x <- sample(seq(from = 20, to = 50, by = 5), size = 50, replace = TRUE)
-    bins <- seq(min(x), max(x), length.out = 10 + 1)
-
-    par(mfrow=c(2,2),mar=c(0,0,0,0), oma=c(0,0,0,0))
-    g <- watts.strogatz.game(1,20,3,0.4)
-    # plot(g,layout=layout.fruchterman.reingold,margin=0)   
-    plot_graph(graph.data)
+    plot.subgraph(career.graph = career.graph, SOC = '55-3015')
+    
+    
   })
   
   output$table <- renderDataTable(biggest.loss)
