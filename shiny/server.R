@@ -8,11 +8,16 @@
 library(shiny)
 library(igraph)
 library(dplyr)
+library(ggplot2)
+library(stringr)
 source("../R/plot_funcs.R")
+source("../R/bls_functions.R")
 
 initialize<-function(){
   bls <- readRDS("../data/processed/bls_project_gain_loss_sorted_titles.rds")
   biggest.loss <- subset(bls, employment.2014 - employment.2024 > 10000)
+  
+  biggest.loss$abb.title = str_wrap( biggest.loss$title, width = 40)
   
   return(biggest.loss)
 
@@ -52,41 +57,21 @@ setwd("shiny")
 
 
 
-plot_graph <-function(graph.data){
-  career.graph <- graph.data.frame(graph.data)
-  career.cluster <- cluster_spinglass(career.graph)
-  to.lab <- data.frame(cluster = career.cluster$membership, 
-                       label = career.cluster$names,
-                       size = sizes) %>% 
-    group_by(cluster) %>% 
-    summarize(label = label[which.max(size)])
-  labs <- names(V(career.graph))
-  labs[!labs %in% to.lab$label] <- NA
-  lab.tab <- `Occupation Data`[,-3]
-  lab.tab[,1]  <- gsub("[.][0-9]{2}", "", lab.tab[,1] )
-  lab.tab[,1] <- gsub("-", "", lab.tab[,1])
-  labs <- as.character(lab.tab[match(labs, lab.tab[,1]),2])
-  
-  # Size by logscale employment
-  sizes <- bls.oc.employment[match(names(V(career.graph)), bls.oc.employment[,1]),4]
-  sizes <- sizes / max(sizes, na.rm=T)
-  sizes <- log(sizes) + 11
-  sizes[is.na(sizes)] <- 1
-  
-  plot(career.graph, 
-  vertex.size = sizes,
-  edge.arrow.size = 0.05,
-  edge.width = 0.5,
-  vertex.label = labs,
-  vertex.color = membership(career.cluster))
-  
-  
-}
 
 shinyServer(function(input, output) {
  
   ## One time graph initialization   
   print(names(biggest.loss))
+  
+  output$overallplot <- renderPlot({
+    biggest.loss$raw.losses <- biggest.loss$employment.2014 - biggest.loss$employment.2024
+    biggest.loss.new<- biggest.loss[order(biggest.loss$raw.losses),]
+    ggplot( biggest.loss.new[1:20,], aes(x = abb.title, y = raw.losses)) + geom_bar(stat = "identity",fill="steelblue") + 
+      coord_flip()  + ylab("Number of jobs lost") + xlab("") +
+      theme(axis.text=element_text(size=12), axis.title.x=element_text(size=18))# + theme(axis.text.y = element_text(angle = 90, hjust = 1))
+  })
+  
+  
   output$jobdist<-renderPlot({
    print(input$select)
    barplot(c(biggest.loss[as.numeric(input$select),]$employment.2014, biggest.loss[as.numeric(input$select),]$employment.2024), 
@@ -102,6 +87,7 @@ shinyServer(function(input, output) {
   })
   
   output$table <- renderDataTable(biggest.loss)
+  
   
   
 })
