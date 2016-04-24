@@ -95,7 +95,8 @@ shinyServer(function(input, output) {
   })
 
   output$jobgraph<-renderPlot({
-    plot.subgraph(career.graph = career.graph, SOC = '55-3015')
+    input$select
+    plot.subgraph(career.graph = career.graph, SOC = '11-1011')
     
     
   })

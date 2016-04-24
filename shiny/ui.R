@@ -24,7 +24,8 @@ shinyUI(fluidPage(theme = "darkly.css",
                                
                                mainPanel( tabsetPanel(
                                  tabPanel("Job loss", plotOutput("jobdist")),
-                                 tabPanel("Job to move to", dataTableOutput("table"))
+                                 tabPanel("Job to move to", dataTableOutput("table")),
+                                 tabPanel("Job graph", plotOutput("jobgraph"))
                                  )) 
                                
                              )
