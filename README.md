@@ -22,7 +22,7 @@ An important questions to answer is what can an individual with a declining occu
 
 ## Resource
 
-Two sources of data are used. The first is the O*NET Resource Center, which gives detailed information about work and worker characteristics, including the skillsets most pertinent to the current middle-skill shift. The second is, the Bureau of Labor Statistics, which collects and publishes a lot of labor statistics. Specifically, [Labor Force Statistics from the Current Population Survey](http://www.bls.gov/cps/data.htm) and [Occupational Employment Statistics](http://www.bls.gov/oes/tables.htm).
+Two sources of data are used. The first is the [O*NET Resource Center](http://www.onetcenter.org/database.html?p=2), which gives detailed information about work and worker characteristics, including the skillsets most pertinent to the current middle-skill shift. The second is, the Bureau of Labor Statistics, which collects and publishes a lot of labor statistics. Specifically, [Employment Projections from 2014 to 2024](http://www.bls.gov/emp/).
 
 ## Methods
 
@@ -32,3 +32,7 @@ Two principal methods are developed. First, borrowing from graph theory, a direc
 
 
 Second, a score function, based on a computed distance measure between an occupation of interest and every other occupation, is used to obtain scores that represent the ease of transitioning from the occupation of interest to the other occupations. Those scores are then ranked and the occupations with best scores are picked as the best to transition to. This score is suitable for use as a resistance in the above graph method.
+
+## License
+
+The code is released in a GPL v3 license (as provided in LICENSE). The data was downloaded (and then processed) from various government and government-affiliated organizations [sources](http://bayeshack.org/labor.html). Please consult respective sources for possible data usage restrictions.
