@@ -90,6 +90,12 @@ shinyServer(function(input, output) {
   }, options = list(columnDefs = list( searchable = FALSE), searchable = FALSE, pageLength = 5))
 
 
+  output$networkplot<-renderPlot({
+    input$select
+    plot.whole.graph(career.graph = career.graph)
+    
+    
+  })
 
   # Scoring Table
   #output$table <- renderDataTable(biggest.loss)

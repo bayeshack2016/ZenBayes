@@ -41,4 +41,8 @@ shinyUI(fluidPage(theme = "darkly.css",
 
 
 
-                             )))))
+
+                             ),
+                             tabPanel("Career Network", titlePanel(h1("Occupations connected by ease of transition")),
+                                      mainPanel(plotOutput("networkplot")))
+                             ))))

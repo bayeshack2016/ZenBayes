@@ -19,6 +19,8 @@ names(bls.project)[names(bls.project) == "SOC.Code"] <- "SOC"
 bls.project <- data.table(bls.project, key = "SOC")
 bls.project[, change := (employment.2024 - employment.2014)]
 pressure.data <- readRDS("data/processed/pressure_output.RDS")
+pressure.data$outflows <- pressure.data$outflows %/% 1
+pressure.data$unemployment <- pressure.data$unemployment %/% 1
 ### Functions to make plots.
 ## Functions to make graph plots
 # Probably do this in the data preload:
@@ -31,6 +33,7 @@ career.graph <- graph.data.frame(graph.data)
 V(career.graph)$change <- bls.project[ match(names(V(career.graph)), SOC), gain.loss.10yrs]
 V(career.graph)$titles <- bls.project[ match(names(V(career.graph)), SOC), title]
 V(career.graph)$size <- log(bls.project[ match(names(V(career.graph)), SOC), employment.2024])
+V(career.graph)$size <- ifelse(is.na(V(career.graph)$size), 1,V(career.graph)$size)
 V(career.graph)$color <- ifelse(V(career.graph)$change > 0, "forest green", "dark red")
 edges.to.delete <- get.edges(career.graph, E(career.graph))
 to.delete <- sign(as.numeric((V(career.graph)$change[edges.to.delete[,1]]))) == 
