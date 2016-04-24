@@ -81,9 +81,16 @@ plot.subgraph <- function(...) {
        vertex.label.dist = 1)
 }
 
-table.subgraph <- function(...) {
-  subgraph <- make.subgraph(...)
-  data.frame(V(subgraph)$names, V(subgraph)$titles)
+table.subgraph <- function(career.graph, SOC) {
+  subgraph <- make.subgraph(career.graph, SOC)
+  res <- data.table(SOC_code = names(V(subgraph)), Title = V(subgraph)$titles)
+  pressure <- pressure.data[from.SOC == SOC,]
+  outflows <- pressure[match(res$SOC, to.SOC), outflows]
+  unemployment <- pressure[match(SOC, from.SOC), unemployment]
+
+  res[, moved := outflows]
+  res[SOC_code == SOC, unemployed := unemployment]
+  res
 }
 
 make.subgraph <- function(career.graph, SOC, distance = 1){
@@ -96,3 +103,4 @@ make.subgraph <- function(career.graph, SOC, distance = 1){
   }
 }
 
+# plot.whole.graph <- function(career.graph, )
