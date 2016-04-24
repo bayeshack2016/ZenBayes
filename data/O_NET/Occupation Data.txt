@@ -955,6 +955,9 @@ O*NET-SOC Code	Title	Description
 51-4193.00	Plating and Coating Machine Setters, Operators, and Tenders, Metal and Plastic	Set up, operate, or tend plating or coating machines to coat metal or plastic products with chromium, zinc, copper, cadmium, nickel, or other metal to protect or decorate surfaces. Includes electrolytic processes.
 51-4194.00	Tool Grinders, Filers, and Sharpeners	Perform precision smoothing, sharpening, polishing, or grinding of metal objects.
 51-4199.00	Metal Workers and Plastic Workers, All Other	All metal workers and plastic workers not listed separately.
+51-5011.00	Bindery Workers	Set up or operate binding machines that produce books and other printed materials.
+51-5011.01	Bindery Machine Setters and Set-Up Operators	Set up or set up and operate machines that perform some or all of the following functions in order to produce books, magazines, pamphlets, catalogs, and other printed materials: gathering, folding, cutting, stitching, rounding and backing, supering, casing-in, lining, pressing, and trimming.
+51-5011.02	Bindery Machine Operators and Tenders	Operate or tend binding machines that round, back, case, line stitch, press, fold, trim, or perform other binding operations on books and related articles.
 51-5111.00	Prepress Technicians and Workers	Format and proof text and images submitted by designers and clients into finished pages that can be printed. Includes digital and photo typesetting. May produce printing plates.
 51-5112.00	Printing Press Operators	Set up and operate digital, letterpress, lithographic, flexographic, gravure, or other printing machines. Includes short-run offset printing presses.
 51-5113.00	Print Binding and Finishing Workers	Bind books and other publications or finish printed products by hand or machine. May set up binding and finishing machines.
